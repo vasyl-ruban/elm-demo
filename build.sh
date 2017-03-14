@@ -1,2 +1,3 @@
-elm make Main.elm &&
+elm make src/Main.elm --output=build/index.html &&
+cd build &&
 http-server
