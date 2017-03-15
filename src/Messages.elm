@@ -10,3 +10,4 @@ type Msg
   = Click
   | Inc Inc.Msg
   | OnLocationChange Location
+  | None

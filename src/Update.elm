@@ -15,15 +15,17 @@ update msg model =
   case msg of
     Click -> { model | foo = "afterClick" } ! []
     OnLocationChange location ->
-
       let
         newRoute =
           parseLocation location
       in
         {model | route = newRoute} ! []
+
+    None -> model ! []
+
     Inc m ->
       let
-        (bar, cmd) =
-          Inc.update m model.bar
+        (incModel, cmd) =
+          Inc.update m model.incModel
       in
-        {model | bar = bar} ! []
+        ({model | incModel = incModel}, Cmd.map Inc cmd)

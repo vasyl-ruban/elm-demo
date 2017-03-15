@@ -32,14 +32,14 @@ home : Model -> Html Msg
 home model =
   div []
     [text "home page"
-    , Html.map Inc (Inc.view model.bar)
+    , Html.map Inc (Inc.view model.incModel)
     ]
 
 about : Model -> Html Msg
 about model =
   div []
     [text "about"
-    , Html.map Inc (Inc.view model.bar)
+    , Html.map Inc (Inc.view model.incModel)
     ]
 
 notFound : Model -> Html Msg
