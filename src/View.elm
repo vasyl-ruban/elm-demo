@@ -7,12 +7,14 @@ import Html.Attributes exposing (..)
 import Model exposing (..)
 import Messages exposing (..)
 
+import Inc
+
 -- View
 view : Model -> Html Msg
 view model =
   div []
   [ div []
-        [ a [style [("margin", "0 10px 0 0")], href ""] [text "home"]
+        [ a [style [("margin", "0 10px 0 0")], href "#"] [text "home"]
         , a [style [("margin", "0 10px 0 0")], href "#about"] [text "about"]
         , a [style [("margin", "0 10px 0 0")], href "#asdf"] [text "not found"]
         ]
@@ -28,11 +30,17 @@ page model =
 
 home : Model -> Html Msg
 home model =
-  div [] [text "home page"]
+  div []
+    [text "home page"
+    , Html.map Inc (Inc.view model.bar)
+    ]
 
 about : Model -> Html Msg
 about model =
-  div [] [text "about"]
+  div []
+    [text "about"
+    , Html.map Inc (Inc.view model.bar)
+    ]
 
 notFound : Model -> Html Msg
 notFound model =
