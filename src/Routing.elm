@@ -10,6 +10,7 @@ matchers =
   oneOf
     [ map Home top
     , map About (s "about")
+    , map PersonRoute (s "person" </> string)
     ]
 
 

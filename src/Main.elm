@@ -5,7 +5,6 @@ import Navigation exposing (Location)
 
 
 import Model exposing (..)
-import Messages exposing (..)
 import View exposing (..)
 import Update exposing (..)
 import Routing exposing (..)
@@ -23,7 +22,7 @@ subscriptions model =
 
 main : Program Never Model Msg
 main =
-  Navigation.program Messages.OnLocationChange
+  Navigation.program OnLocationChange
   { init = init
   , view = view
   , update = update
