@@ -5,6 +5,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
+import Bootstrap.Table as Table
 import Http
 import Json.Decode as Decode
 -- Types
@@ -91,9 +92,7 @@ personDecoder =
 changeRouteHandler : Route -> Cmd Msg
 changeRouteHandler route =
   case route of
-    -- TODO: upload person
     PersonRoute personId -> getPerson personId
-    -- TODO: upload person list
     PersonListRoute -> getPersonList
 
 -- View
@@ -111,6 +110,17 @@ personView personId model =
   Grid.row []
     [ Grid.col [Col.xs12] [h1 [] [text ("Person " ++ toString personId)]]
     , Grid.col [Col.xs12] [personPaginator personId]
+    -- , Grid.col [Col.xs12] [
+    --     Table.table [] [
+    --       Table.thead [] [
+    --         Table.tr [] [
+    --           Table.td [] [text "name"],
+    --           Table.td [] [text "height"],
+    --           Table.td [] [text "mass"]
+    --         ]
+    --       ]
+    --     ]
+    --   ]
     ]
 
 personPaginator : PersonId -> Html Msg
