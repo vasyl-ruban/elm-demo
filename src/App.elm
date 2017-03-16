@@ -10,6 +10,7 @@ import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.CDN as CDN
 import Bootstrap.Navbar as Navbar
+import Debug
 
 import Person.Person as Person
 
@@ -20,6 +21,7 @@ import Person.Person as Person
 type Route
   = Main
   | PersonRoute Person.Route
+  | ParamPage Int
   | NotFound
 
 type alias Model =
@@ -66,7 +68,9 @@ matchers: Parser (Route -> a) a
 matchers =
   oneOf
     [ UrlParser.map Main top
-    , UrlParser.map (PersonRoute Person.PersonListRoute) (UrlParser.s "#person")
+    , UrlParser.map ParamPage (UrlParser.s "param" </> UrlParser.int)
+    , UrlParser.map (PersonRoute Person.PersonListRoute) (UrlParser.s "persons")
+    , UrlParser.map PersonRoute (UrlParser.map Person.PersonRoute (UrlParser.s "person" </> UrlParser.int))
     ]
 
 parseLocation: Location -> Route
@@ -95,7 +99,8 @@ navbar model =
     |> Navbar.brand [ href "#"] [ text "Brand"]
     |> Navbar.items
       [ Navbar.itemLink [href "#about"] [ text "about"]
-      , Navbar.itemLink [href "#person"] [ text "person"]
+      , Navbar.itemLink [href "#persons"] [ text "persons"]
+      , Navbar.itemLink [href "#person/1"] [ text "person1"]
       , Navbar.itemLink [href "#asdf"] [ text "not found"]
       ]
     |> Navbar.view model.navbarState
@@ -104,6 +109,7 @@ page : Model -> Html Msg
 page model =
   case model.route of
     Main -> mainPage model
+    ParamPage i -> mainPage model
     PersonRoute route -> Html.map PersonMsg (Person.view model.personModel route)
     NotFound -> notFound model
 
