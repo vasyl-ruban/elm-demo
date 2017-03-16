@@ -56,21 +56,30 @@ update msg model =
         newRoute =
             parseLocation location
       in
-        { model | route = newRoute} ! []
+        { model | route = newRoute} ! [childLocationHandler location]
 
     NavbarMsg state ->
       { model | navbarState = state } ! []
 
     PersonMsg personMsg ->
-      model ! []
+      let
+        (personModel, cmd) =
+          Person.update personMsg model.personModel
+      in
+        {model | personModel = personModel } ! [Cmd.map PersonMsg cmd]
+
+childLocationHandler : Location -> Cmd Msg
+childLocationHandler location =
+  case parseLocation location of
+    PersonRoute route -> Cmd.map PersonMsg (Person.changeRouteHandler route)
+    _ -> Cmd.none
 
 matchers: Parser (Route -> a) a
 matchers =
   oneOf
     [ UrlParser.map Main top
     , UrlParser.map ParamPage (UrlParser.s "param" </> UrlParser.int)
-    , UrlParser.map (PersonRoute Person.PersonListRoute) (UrlParser.s "persons")
-    , UrlParser.map PersonRoute (UrlParser.map Person.PersonRoute (UrlParser.s "person" </> UrlParser.int))
+    , UrlParser.map PersonRoute Person.matchers
     ]
 
 parseLocation: Location -> Route
@@ -96,7 +105,7 @@ view model =
 navbar : Model -> Html Msg
 navbar model =
   Navbar.config NavbarMsg
-    |> Navbar.brand [ href "#"] [ text "Brand"]
+    |> Navbar.brand [ href "#"] [ text "Main"]
     |> Navbar.items
       [ Navbar.itemLink [href "#about"] [ text "about"]
       , Navbar.itemLink [href "#persons"] [ text "persons"]

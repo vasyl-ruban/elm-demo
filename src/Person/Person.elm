@@ -1,5 +1,6 @@
 module Person.Person exposing (..)
 
+import UrlParser exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Bootstrap.Grid as Grid
@@ -28,6 +29,27 @@ type Route
 initPersonModel : Model
 initPersonModel =
   Model
+
+matchers : Parser (Route -> a) a
+matchers =
+  oneOf
+    [ UrlParser.map PersonListRoute (UrlParser.s "persons")
+    , UrlParser.map PersonRoute (UrlParser.s "person" </> UrlParser.int)
+    ]
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+  case msg of
+    PersonMsg ->
+      (model, Cmd.none)
+
+changeRouteHandler : Route -> Cmd Msg
+changeRouteHandler route =
+  case route of
+    -- TODO: upload person
+    PersonRoute personId -> Cmd.none
+    -- TODO: upload person list
+    PersonListRoute -> Cmd.none
 
 -- View
 
