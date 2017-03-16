@@ -6,6 +6,7 @@ import Html.Attributes exposing (..)
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Http
+import Json.Decode as Decode
 -- Types
 
 type alias PersonId = Int
@@ -18,15 +19,13 @@ type alias Person =
   }
 
 type alias Model =
-  {
-
+  { personList: List Person
+  , person: Person
   }
-
-
 
 type Msg
   = LoadPersonList
-  | HandlePersonList (Result Http.Error List Person )
+  | HandlePersonList (Result Http.Error (List Person))
   | LoadPerson Int
   | HandlePerson (Result Http.Error Person )
 
@@ -39,7 +38,11 @@ type Route
 
 initPersonModel : Model
 initPersonModel =
-  Model
+  Model [] initPerson
+
+initPerson : Person
+initPerson =
+  Person "" "" ""
 
 matchers : Parser (Route -> a) a
 matchers =
@@ -51,27 +54,47 @@ matchers =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    LoadPersonList -> (model, Cmd.none)
-    -- LoadPersonList -> (model, getPersonList)
+
+    HandlePersonList (Ok personList) ->
+      {model | personList = personList} ! []
+
+    HandlePerson (Ok person) ->
+      {model | person = person} ! []
+
     _ -> (model, Cmd.none)
 
--- getPersonList : Cmd Msg
--- getPersonList =
---   let
---     url = "http://swapi.co/api/people/"
---   in
---     Http.send HandlePersonList (Http.get url personListDecoder)
---
--- personListDecoder : Decode.Decoder List Person
--- personListDecoder =
+getPerson : PersonId -> Cmd Msg
+getPerson personId =
+  let
+    url = "http://swapi.co/api/people/" ++ (toString personId)
+  in
+    Http.send HandlePerson (Http.get url personDecoder)
+
+getPersonList : Cmd Msg
+getPersonList =
+  let
+    url = "http://swapi.co/api/people/"
+  in
+    Http.send HandlePersonList (Http.get url personListDecoder)
+
+personListDecoder : Decode.Decoder (List Person)
+personListDecoder =
+  Decode.at ["results"] (Decode.list personDecoder)
+
+personDecoder : Decode.Decoder Person
+personDecoder =
+  Decode.map3 Person
+    (Decode.field "name" Decode.string)
+    (Decode.field "height" Decode.string)
+    (Decode.field "mass" Decode.string)
 
 changeRouteHandler : Route -> Cmd Msg
 changeRouteHandler route =
   case route of
     -- TODO: upload person
-    PersonRoute personId -> Cmd.none
+    PersonRoute personId -> getPerson personId
     -- TODO: upload person list
-    PersonListRoute -> Cmd.none
+    PersonListRoute -> getPersonList
 
 -- View
 
