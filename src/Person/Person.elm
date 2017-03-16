@@ -5,9 +5,17 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
+import Http
 -- Types
 
 type alias PersonId = Int
+
+type alias Person =
+  {
+    name: String,
+    height: String,
+    mass: String
+  }
 
 type alias Model =
   {
@@ -17,7 +25,10 @@ type alias Model =
 
 
 type Msg
-  = PersonMsg
+  = LoadPersonList
+  | HandlePersonList (Result Http.Error List Person )
+  | LoadPerson Int
+  | HandlePerson (Result Http.Error Person )
 
 type Route
   = PersonRoute PersonId
@@ -40,8 +51,19 @@ matchers =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    PersonMsg ->
-      (model, Cmd.none)
+    LoadPersonList -> (model, Cmd.none)
+    -- LoadPersonList -> (model, getPersonList)
+    _ -> (model, Cmd.none)
+
+-- getPersonList : Cmd Msg
+-- getPersonList =
+--   let
+--     url = "http://swapi.co/api/people/"
+--   in
+--     Http.send HandlePersonList (Http.get url personListDecoder)
+--
+-- personListDecoder : Decode.Decoder List Person
+-- personListDecoder =
 
 changeRouteHandler : Route -> Cmd Msg
 changeRouteHandler route =
