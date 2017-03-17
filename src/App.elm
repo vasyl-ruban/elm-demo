@@ -124,7 +124,8 @@ page model =
 
 footer : Model -> Html Msg
 footer model =
-  div [] [text (toString model)]
+  -- div [] [text (toString model)]
+  div [] []
 
 mainPage : Model -> Html Msg
 mainPage model =
