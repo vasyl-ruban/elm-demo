@@ -3,10 +3,12 @@ module Person.Person exposing (..)
 import UrlParser exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Table as Table
 import Bootstrap.Form as Form
+import Bootstrap.Button as Button
 import Http
 import Json.Decode as Decode
 -- Types
@@ -22,11 +24,12 @@ type alias Person =
 
 type alias Model =
   { personList: List Person
+  , personListPageId: Int
   , person: Person
   }
 
 type Msg
-  = LoadPersonList
+  = LoadPersonList Int
   | HandlePersonList (Result Http.Error (List Person))
   | LoadPerson Int
   | HandlePerson (Result Http.Error Person )
@@ -40,7 +43,7 @@ type Route
 
 initPersonModel : Model
 initPersonModel =
-  Model [] initPerson
+  Model [] 1 initPerson
 
 initPerson : Person
 initPerson =
@@ -56,14 +59,24 @@ matchers =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
+    LoadPersonList pageId ->
+      (model, getPersonList pageId)
 
     HandlePersonList (Ok personList) ->
-      {model | personList = personList} ! []
+      {model | personList = (List.append model.personList personList), personListPageId = (model.personListPageId+1)} ! []
 
     HandlePerson (Ok person) ->
       {model | person = person} ! []
 
     _ -> (model, Cmd.none)
+
+
+changeRouteHandler : Route -> Cmd Msg
+changeRouteHandler route =
+  case route of
+    PersonRoute personId -> getPerson personId
+    PersonListRoute -> getPersonList 1
+
 
 getPerson : PersonId -> Cmd Msg
 getPerson personId =
@@ -72,10 +85,10 @@ getPerson personId =
   in
     Http.send HandlePerson (Http.get url personDecoder)
 
-getPersonList : Cmd Msg
-getPersonList =
+getPersonList : Int -> Cmd Msg
+getPersonList pageId =
   let
-    url = "http://swapi.co/api/people/"
+    url = "http://swapi.co/api/people/?page=" ++ (toString pageId)
   in
     Http.send HandlePersonList (Http.get url personListDecoder)
 
@@ -89,12 +102,6 @@ personDecoder =
     (Decode.field "name" Decode.string)
     (Decode.field "height" Decode.string)
     (Decode.field "mass" Decode.string)
-
-changeRouteHandler : Route -> Cmd Msg
-changeRouteHandler route =
-  case route of
-    PersonRoute personId -> getPerson personId
-    PersonListRoute -> getPersonList
 
 -- View
 
@@ -164,5 +171,11 @@ personListView model =
                   ]
         , tbody = Table.tbody [] (List.indexedMap personRow model.personList)
         }
+      ]
+    , Grid.col [Col.xs12]
+      [ Button.button
+          [ Button.primary
+          , Button.attrs [onClick (LoadPersonList model.personListPageId)]
+          ] [text "Load more"]
       ]
     ]

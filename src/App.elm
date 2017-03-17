@@ -107,9 +107,7 @@ navbar model =
   Navbar.config NavbarMsg
     |> Navbar.brand [ href "#"] [ text "Main"]
     |> Navbar.items
-      [ Navbar.itemLink [href "#about"] [ text "about"]
-      , Navbar.itemLink [href "#persons"] [ text "persons"]
-      , Navbar.itemLink [href "#person/1"] [ text "person1"]
+      [ Navbar.itemLink [href "#persons"] [ text "persons"]
       , Navbar.itemLink [href "#asdf"] [ text "not found"]
       ]
     |> Navbar.view model.navbarState
